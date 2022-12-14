@@ -85,10 +85,16 @@ if [ "$AUTH_REGISTRIES" ]; then
             s=${s#*"$AUTH_REGISTRY_DELIMITER"};
         done
         AUTH_HOST="${registry_array[0]}"
-        AUTH_USER="${registry_array[1]}"
-        AUTH_PASS="${registry_array[2]}"
-        AUTH_BASE64=$(echo -n ${AUTH_USER}:${AUTH_PASS} | base64 -w0 | xargs)
-        echo "Adding Auth for registry '${AUTH_HOST}' with user '${AUTH_USER}'."
+        if [ "${#registry_array[@]}" = "3" ]
+        then
+            AUTH_USER="${registry_array[1]}"
+            AUTH_PASS="${registry_array[2]}"
+            AUTH_BASE64=$(echo -n ${AUTH_USER}:${AUTH_PASS} | base64 -w0 | xargs)
+            echo "Adding Auth for registry '${AUTH_HOST}' with user '${AUTH_USER}'."
+        else
+            AUTH_BASE64="${registry_array[1]}"
+            echo "Adding Auth for registry '${AUTH_HOST}' with token '${AUTH_BASE64}'."
+        fi
         echo "\"${AUTH_HOST}\" \"${AUTH_BASE64}\";" >> /etc/nginx/docker.auth.map
     done
 fi
